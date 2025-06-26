@@ -1,7 +1,7 @@
 import Header from "@/app/components/Header";
 import DeleteBlogBtn from "@/app/components/pages/dashboard/DeleteBlogBtn";
 import EditBlogBtn from "@/app/components/pages/dashboard/EditBlogBtn";
-import { getBlogs } from "@/lib/blogs";
+import { getAllBlogs } from "@/lib/blogs";
 import formatDate from "@/lib/formatDate";
 import slugify from "@/lib/slugify";
 import { BlogProps } from "@/types/blog";
@@ -9,7 +9,7 @@ import Link from "next/link";
 import { FaFileCirclePlus } from "react-icons/fa6";
 
 export default async function DashboardPage() {
-  const blogs = await getBlogs();
+  const blogs = await getAllBlogs();
   const sortedBlogs: BlogProps[] = blogs
     .filter((b): b is BlogProps => !!b.createdAt)
     .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
@@ -43,10 +43,10 @@ export default async function DashboardPage() {
               {sortedBlogs.length > 0 ? (
                 sortedBlogs.map((blog) => {
                   const slug = slugify(blog.title);
-                  const slugAndId = `${slug}-${blog.id}`;
+                  const slugAndId = `${slug}-${blog._id}`;
 
                   return (
-                    <tr key={blog.id} className="border-t">
+                    <tr key={blog._id} className="border-t">
                       <td className="py-4 pr-4 font-medium truncate max-w-[8rem] lg:pr-4 lg:max-w-[10rem]">{blog.title}</td>
                       <td className="py-4 pr-2 truncate max-w-[20rem] lg:max-w-[28rem] lg:pr-4">{blog.summary}</td>
                       <td className="py-4 pr-2 truncate max-w-[12rem] lg:max-w-[16rem] lg:pr-4">{formatDate(blog.createdAt!)}</td>
@@ -75,15 +75,15 @@ export default async function DashboardPage() {
         </div>
 
         {/* Mobile Cards */}
-        <div className="mt-4 h-[540px] pr-4 flex flex-col gap-y-6 overflow-y-auto sm:hidden lg:pr-0">
+        <div className="mt-4 h-[540px] pr-4 flex flex-col gap-y-6 overflow-y-clip sm:hidden lg:pr-0">
           {sortedBlogs.length > 0 ? (
             sortedBlogs.map((blog) => {
               const slug = slugify(blog.title);
-              const slugAndId = `${slug}-${blog.id}`;
+              const slugAndId = `${slug}-${blog._id}`;
 
               return (
                 <div
-                  key={blog.id}
+                  key={blog._id}
                 >
                   <div className="flex justify-between items-center gap-x-4 sm:gap-x-8">
                     <h2 className="text-lg font-semibold line-clamp-2 md:text-xl">
