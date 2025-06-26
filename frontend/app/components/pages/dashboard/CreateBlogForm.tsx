@@ -6,6 +6,10 @@ import FormInput from "./FormInput";
 import TextArea from "./TextArea";
 import FileInput from "./FileInput";
 import { StaticImageData } from "next/image";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
 
 export default function CreateBlogForm() {
   const [blogData, setBlogData] = useState<BlogProps>({
@@ -20,6 +24,7 @@ export default function CreateBlogForm() {
   });
   const [previewUrl, setPreviewURL] = useState<string | null>(null);
   const [errors, setErrors] = useState<Partial<BlogProps>>({});
+  const router = useRouter();
 
   useEffect(() => {
     if (blogData.img instanceof File) {
@@ -97,6 +102,23 @@ export default function CreateBlogForm() {
     }));
   };
 
+  const uploadToCloudinary = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "f0-ductdaddy");
+
+    try {
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        formData
+      );
+      return res.data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload failed", error);
+      return null;
+    }
+  };
+
   const validateForm = () => {
     const newErrors: Partial<BlogProps> = {};
     (Object.keys(blogData) as (keyof BlogProps)[]).forEach((key) => {
@@ -108,11 +130,41 @@ export default function CreateBlogForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log("Blog submitted:", blogData);
-      alert("Blog created successfully!");
+    if (!validateForm()) return;
+
+    try {
+      let imageUrl = null;
+
+      if (blogData.img instanceof File) {
+        imageUrl = await uploadToCloudinary(blogData.img);
+        if (!imageUrl) {
+          setErrors((prev) => ({
+            ...prev,
+            img: "Failed to upload image.",
+          }));
+          return;
+        }
+      }
+
+      const payload = {
+        ...blogData,
+        author: "Karson Kolle",
+        img: imageUrl,
+      };
+
+      const res = await api.post("/blogs", payload);
+
+      if (res.status === 201 || res.status === 200) {
+        toast.success("Blog created successfully!");
+        router.push("/dashboard")
+      }
+    } catch (error) {
+      console.log("Error creating blog:", error)
+      toast.error("An error occured while submitted the blog.", {
+        duration: 4000,
+      });
     }
   };
 
