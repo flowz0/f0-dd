@@ -1,6 +1,6 @@
 "use client";
 
-import { getBlogs } from "@/lib/blogs";
+import { getAllBlogs } from "@/lib/blogs";
 import { BlogProps } from "@/types/blog";
 import BlogCard from "./BlogCard";
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +14,7 @@ export default function AllBlogs() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const blogs = await getBlogs();
+        const blogs = await getAllBlogs();
         const sorted = blogs
           .filter((b): b is BlogProps => !!b.createdAt)
           .sort(
@@ -58,7 +58,7 @@ export default function AllBlogs() {
       <div ref={blogGridTopRef}>
         <div className={`grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3`}>
           {visibleBlogs.map((blog) => (
-            <div key={blog.id}>
+            <div key={blog._id}>
               <BlogCard blog={blog} />
             </div>
           ))}
@@ -66,22 +66,24 @@ export default function AllBlogs() {
       </div>
 
       <div className="mt-12 flex items-center justify-center">
-        {visibleCount < allBlogs.length ? (
-          <button
-            onClick={handleShowMore}
-            className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
-            aria-label="Show more blog posts"
-          >
-            Show more blogs
-          </button>
-        ) : (
-          <button
-            onClick={handleShowLess}
-            className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
-            aria-label="Show less blog posts"
-          >
-            Less blogs
-          </button>
+        {visibleCount > 3 && (
+          visibleCount < allBlogs.length ? (
+            <button
+              onClick={handleShowMore}
+              className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
+              aria-label="Show more blog posts"
+            >
+              Show more blogs
+            </button>
+          ) : (
+            <button
+              onClick={handleShowLess}
+              className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
+              aria-label="Show less blog posts"
+            >
+              Less blogs
+            </button>
+          )
         )}
       </div>
     </section>
