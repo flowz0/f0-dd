@@ -13,16 +13,18 @@ interface BlogCardProps {
 
 export default function BlogCard({ blog }: BlogCardProps) {
   const slug = slugify(blog.title);
-  const url = `/blog/${slug}-${blog.id}`
+  const url = `/blog/${slug}-${blog._id}`
 
   return (
     <article
       className="max-w-full md:max-w-1/2 lg:max-w-1/3"
-      aria-labelledby={`blog-title-${blog.id}`}
+      aria-labelledby={`blog-title-${blog._id}`}
     >
       <Image
         src={blog.img || PlaceholderImg}
         alt={`${blog.title} blog image`}
+        height={1920}
+        width={1080}
         className="w-full h-64 object-cover rounded-lg shadow shadow-[hsl(0,0%,80%)]"
         loading="lazy"
       />
