@@ -3,6 +3,7 @@ import { Arimo } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { Toaster } from "react-hot-toast";
 
 export const arimo = Arimo({
   variable: "--font-arimo",
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body
         className={`${arimo.className} bg-[#E6E6E6] text-[#333333] antialiased`}
       >
+        <Toaster />
         <Navbar />
         {children}
         <Footer />
