@@ -1,26 +1,26 @@
 import express from "express";
-import blogRoutes from "./routes/blogRoutes.js";
-import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
+import cors from "cors";
+import blogRoutes from "./routes/blogRoutes.js";
+import rateLimiter from "./middleware/rateLimiter.js";
+import { connectDB } from "./config/db.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-connectDB();
-
 // middleware
+app.use(cors({
+  origin: "http://localhost:3000",
+}));
 app.use(express.json()); // parse JSON bodies: req.body
-
-// custom middleware
-// app.use((req, res, next) => {
-//   console.log(`Req method is ${req.method} & Req URL is ${req.url}`);
-//   next();
-// });
+app.use(rateLimiter);
 
 app.use("/api/blogs", blogRoutes);
 
-app.listen(PORT, () => {
-  console.log("Server started on PORT:", PORT);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log("Server started on PORT:", PORT);
+  });
 });
