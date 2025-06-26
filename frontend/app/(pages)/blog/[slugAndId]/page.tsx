@@ -3,15 +3,15 @@ import Image from "next/image";
 import PlaceholderImg from "@/public/1920x1080.svg";
 import CTA from "@/app/components/CTA";
 import FeaturedBlogs from "@/app/components/pages/blog/FeaturedBlogs";
-import { getBlogs } from "@/lib/blogs";
+import { getAllBlogs } from "@/lib/blogs";
 import { notFound } from "next/navigation";
 
 export default async function BlogPage({ params }: { params: Promise<{ slugAndId: string }> }) {
   const { slugAndId } = await params;
   const id = slugAndId.split("-").pop();
 
-  const blogs = await getBlogs();
-  const blog = blogs.find((b) => b.id === id);
+  const blogs = await getAllBlogs();
+  const blog = blogs.find((b) => b._id === id);
 
   if (!blog) return notFound();
 
@@ -30,7 +30,9 @@ export default async function BlogPage({ params }: { params: Promise<{ slugAndId
           <Image
             src={blog.img || PlaceholderImg}
             alt={`${blog.title} blog image`}
-            className="mt-12 h-full w-auto object-cover rounded-lg md:mt-16"
+            height={1920}
+            width={1080}
+            className="mt-12 h-auto w-full object-cover rounded-lg md:mt-16"
             draggable={false}
           />
         </header>
