@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import useAuthUser from "@/hooks/useAuthUser";
 import toast from "react-hot-toast";
 import axios from "axios";
+import uploadToCloudinary from "@/lib/uploadToCloudinary";
 
 export default function EditBlogForm({ initialData }: { initialData: BlogProps }) {
   const [blogData, setBlogData] = useState<BlogProps>(initialData);
@@ -37,11 +38,13 @@ export default function EditBlogForm({ initialData }: { initialData: BlogProps }
     value: FieldValue
   ): string => {
     if (name === "img") {
+      if (!value) {
+        return "An image is required.";
+      }
       if (
-        !value ||
-        (typeof value !== "string" &&
-          !(value instanceof File) &&
-          !(typeof value === "object" && "src" in value))
+        !(typeof value === "string") &&
+        !(value instanceof File) &&
+        !(typeof value === "object" && "src" in value)
       ) {
         return "A valid image file is required.";
       }
@@ -132,8 +135,25 @@ export default function EditBlogForm({ initialData }: { initialData: BlogProps }
 
       if (!validateForm()) return;
 
-      const res = await axios.put(`http://localhost:5001/api/blogs/${blogData._id}`, blogData, {
-        withCredentials: true
+      let updatedImage = blogData.img;
+
+      // If user selected a new image
+      if (blogData.img instanceof File) {
+        const uploadedUrl = await uploadToCloudinary(blogData.img);
+        if (!uploadedUrl) {
+          toast.error("Image upload failed.");
+          return;
+        }
+        updatedImage = uploadedUrl;
+      }
+
+      const payload = {
+        ...blogData,
+        img: updatedImage,
+      };
+
+      const res = await axios.put(`http://localhost:5001/api/blogs/${blogData._id}`, payload, {
+        withCredentials: true,
       });
       if (res.status === 201 || res.status === 200) {
         toast.success("Blog updated successfully!");
