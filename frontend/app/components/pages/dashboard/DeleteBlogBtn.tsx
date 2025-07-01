@@ -7,9 +7,10 @@ import DeleteBlogModal from "./DeleteBlogModal";
 interface DeleteBlogBtnProps {
   deleteHref: string;
   ariaLabel: string;
+  refetchBlogs: () => void;
 }
 
-export default function DeleteBlogBtn({ deleteHref, ariaLabel }: DeleteBlogBtnProps) {
+export default function DeleteBlogBtn({ deleteHref, ariaLabel, refetchBlogs }: DeleteBlogBtnProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,6 +29,7 @@ export default function DeleteBlogBtn({ deleteHref, ariaLabel }: DeleteBlogBtnPr
         title="Delete blog"
         deleteHref={deleteHref}
         ariaLabel={ariaLabel}
+        refetchBlogs={refetchBlogs}
       >
         <p className="text-gray-700">Are you sure you want to delete this blog?</p>
       </DeleteBlogModal>
