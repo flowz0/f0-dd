@@ -1,5 +1,6 @@
-import Link from "next/link";
+import axios from "axios";
 import { useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 
 interface ModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface ModalProps {
   children: React.ReactNode;
   deleteHref: string;
   ariaLabel: string;
+  refetchBlogs: () => void;
 }
 
 export default function DeleteBlogModal({
@@ -16,7 +18,8 @@ export default function DeleteBlogModal({
   title,
   children,
   deleteHref,
-  ariaLabel
+  ariaLabel,
+  refetchBlogs,
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -36,6 +39,23 @@ export default function DeleteBlogModal({
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleDelete = async () => {
+    try {
+      const res = await axios.delete(`http://localhost:5001/api/blogs/${deleteHref}`, { withCredentials: true });
+      if (res.status === 201 || res.status === 200) {
+        toast.success("Blog deleted successfully!");
+        onClose();
+        refetchBlogs();
+      } else {
+        toast.success("Blog did not delete!");
+        onClose();
+      }
+    } catch (error) {
+      toast.error("Failed to delete blog.");
+      console.error("HandleDelete error:", error);
+    }
+  };
 
   return (
     <div
@@ -58,13 +78,13 @@ export default function DeleteBlogModal({
         )}
         <div className="mt-2 text-[#333333]">{children}</div>
         <div className="mt-4 flex gap-x-2">
-          <Link
-            href={`/delete/${deleteHref}`}
+          <button
+            onClick={handleDelete}
             aria-label={`Delete ${ariaLabel}`}
             className="bg-[hsl(0,100%,20%)] text-[hsl(0,100%,80%)] rounded-md px-4 py-2 font-semibold md:px-5 md:py-3 hover:bg-[hsl(0,100%,28%)]"
           >
             Delete blog
-          </Link>
+          </button>
           <button
             onClick={onClose}
             className="bg-[hsl(205,100%,20%)] text-[hsl(205,100%,80%)] rounded-md px-4 py-2 font-semibold md:px-5 md:py-3 hover:bg-[hsl(205,100%,28%)]"
