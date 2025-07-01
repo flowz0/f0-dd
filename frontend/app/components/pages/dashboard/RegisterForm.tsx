@@ -4,6 +4,9 @@ import { RegisterData } from "@/types/register";
 import Link from "next/link";
 import { useState } from "react";
 import FormInput from "./FormInput";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState<RegisterData>({
@@ -12,6 +15,7 @@ export default function RegisterForm() {
     username: "",
     password: "",
   });
+  const router = useRouter();
 
   const [errors, setErrors] = useState<Partial<RegisterData>>({});
 
@@ -46,8 +50,8 @@ export default function RegisterForm() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setFormData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     const error = validateField(name as keyof RegisterData, value);
 
@@ -67,12 +71,21 @@ export default function RegisterForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      console.log("Registered:", formData);
-      alert("Register successful!");
+    if (!validateForm()) return;
+
+    try {
+      const res = await axios.post("http://localhost:5001/api/auth/register", formData, { withCredentials: true });
+      if (res.status === 201) {
+        setFormData({ firstName: "", lastName: "", username: "", password: "" });
+        setErrors({});
+      }
+      toast.success("Register successful!");
+      router.push("/login");
+    } catch (error) {
+      toast.error("Login failed", error!);
     }
   };
 
@@ -82,6 +95,7 @@ export default function RegisterForm() {
         name="firstName"
         label="First name"
         placeholder="First name"
+        className="bg-[#ffffff]"
         value={formData.firstName}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -92,6 +106,7 @@ export default function RegisterForm() {
         name="lastName"
         label="Last name"
         placeholder="Last name"
+        className="bg-[#ffffff]"
         value={formData.lastName}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -102,6 +117,7 @@ export default function RegisterForm() {
         name="username"
         label="Username"
         placeholder="Username"
+        className="bg-[#ffffff]"
         value={formData.username}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -111,7 +127,9 @@ export default function RegisterForm() {
       <FormInput
         name="password"
         label="Password"
+        type="password"
         placeholder="••••••"
+        className="bg-[#ffffff]"
         value={formData.password}
         onChange={handleChange}
         onBlur={handleBlur}

@@ -3,15 +3,14 @@ import Image from "next/image";
 import PlaceholderImg from "@/public/1920x1080.svg";
 import CTA from "@/app/components/CTA";
 import FeaturedBlogs from "@/app/components/pages/blog/FeaturedBlogs";
-import { getAllBlogs } from "@/lib/blogs";
+import { getBlogById } from "@/lib/blogs";
 import { notFound } from "next/navigation";
 
-export default async function BlogPage({ params }: { params: Promise<{ slugAndId: string }> }) {
-  const { slugAndId } = await params;
-  const id = slugAndId.split("-").pop();
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
 
-  const blogs = await getAllBlogs();
-  const blog = blogs.find((b) => b._id === id);
+  const blog = await getBlogById(id);
 
   if (!blog) return notFound();
 

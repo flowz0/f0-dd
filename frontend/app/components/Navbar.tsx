@@ -60,7 +60,7 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="flex items-center gap-4">
-          {pathname === "/blog" || pathname === "/dashboard" || pathname === "/create-blog" || pathname.startsWith("/edit/") || pathname === "/admin" || pathname === "/register" ? (
+          {pathname === "/blog" || pathname === "/dashboard" || pathname === "/create-blog" || pathname.startsWith("/edit/") || pathname === "/login" || pathname === "/register" ? (
             <Link href="/dashboard" className="hidden bg-[#0080DB] text-[#ffffff] duration-300 transition-colors py-1 px-4 font-semibold text-base/[32px] tracking-[0.016em] rounded-lg md:block hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)]">
               Dashboard
             </Link>

@@ -6,11 +6,17 @@ import FormInput from "./FormInput";
 import TextArea from "./TextArea";
 import FileInput from "./FileInput";
 import { StaticImageData } from "next/image";
+import { useRouter } from "next/navigation";
+import useAuthUser from "@/hooks/useAuthUser";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 export default function EditBlogForm({ initialData }: { initialData: BlogProps }) {
   const [blogData, setBlogData] = useState<BlogProps>(initialData);
   const [errors, setErrors] = useState<Partial<BlogProps>>({});
   const [previewUrl, setPreviewURL] = useState<string | null>(null);
+  const router = useRouter();
+  const user = useAuthUser();
 
   useEffect(() => {
     if (blogData.img instanceof File) {
@@ -32,10 +38,10 @@ export default function EditBlogForm({ initialData }: { initialData: BlogProps }
   ): string => {
     if (name === "img") {
       if (
-        !value || 
-        (typeof value !== "string" && 
+        !value ||
+        (typeof value !== "string" &&
           !(value instanceof File) &&
-          !(typeof value ==="object" && "src" in value))
+          !(typeof value === "object" && "src" in value))
       ) {
         return "A valid image file is required.";
       }
@@ -114,11 +120,27 @@ export default function EditBlogForm({ initialData }: { initialData: BlogProps }
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log("Blog updated:", blogData);
-      alert("Blog saved successfully!");
+
+    try {
+      if (!user) {
+        toast.error("You must be logged in to edit a blog");
+        router.push("/login");
+        return;
+      }
+
+      if (!validateForm()) return;
+
+      const res = await axios.put(`http://localhost:5001/api/blogs/${blogData._id}`, blogData, {
+        withCredentials: true
+      });
+      if (res.status === 201 || res.status === 200) {
+        toast.success("Blog updated successfully!");
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("EditBlogForm handleSubmit:", error);
     }
   };
 

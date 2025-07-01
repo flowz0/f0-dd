@@ -9,7 +9,7 @@ import { StaticImageData } from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import api from "@/lib/axios";
+import useAuthUser from "@/hooks/useAuthUser";
 
 export default function CreateBlogForm() {
   const [blogData, setBlogData] = useState<BlogProps>({
@@ -25,6 +25,7 @@ export default function CreateBlogForm() {
   const [previewUrl, setPreviewURL] = useState<string | null>(null);
   const [errors, setErrors] = useState<Partial<BlogProps>>({});
   const router = useRouter();
+  const user = useAuthUser();
 
   useEffect(() => {
     if (blogData.img instanceof File) {
@@ -148,23 +149,33 @@ export default function CreateBlogForm() {
         }
       }
 
+      if (!user) {
+        toast.error("User not found. Please log in.");
+        router.push("/login");
+        return;
+      }
+
       const payload = {
         ...blogData,
-        author: "Karson Kolle",
         img: imageUrl,
+        author: `${user.firstName} ${user.lastName}`,
       };
+      console.log("Payload being sent:", payload);
 
-      const res = await api.post("/blogs", payload);
+      const res = await axios.post("http://localhost:5001/api/blogs", payload, { withCredentials: true });
 
       if (res.status === 201 || res.status === 200) {
         toast.success("Blog created successfully!");
         router.push("/dashboard")
       }
     } catch (error) {
-      console.log("Error creating blog:", error)
-      toast.error("An error occured while submitted the blog.", {
-        duration: 4000,
-      });
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error response:", error.response);
+        toast.error(`Error ${error.response?.status} - ${error.response?.data?.error || error.message}`)
+      } else {
+        console.error("Unexpected error:", error);
+        toast.error("An unexpected error occurred.");
+      }
     }
   };
 

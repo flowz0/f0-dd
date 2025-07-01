@@ -66,25 +66,25 @@ export default function AllBlogs() {
       </div>
 
       <div className="mt-12 flex items-center justify-center">
-        {visibleCount > 3 && (
-          visibleCount < allBlogs.length ? (
-            <button
-              onClick={handleShowMore}
-              className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
-              aria-label="Show more blog posts"
-            >
-              Show more blogs
-            </button>
-          ) : (
-            <button
-              onClick={handleShowLess}
-              className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
-              aria-label="Show less blog posts"
-            >
-              Less blogs
-            </button>
-          )
+        {/* {visibleCount < 3 && ( */}
+        {visibleCount < allBlogs.length ? (
+          <button
+            onClick={handleShowMore}
+            className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
+            aria-label="Show more blog posts"
+          >
+            Show more blogs
+          </button>
+        ) : (
+          <button
+            onClick={handleShowLess}
+            className="bg-[#0080DB] text-[#E6E6E6] w-full py-3 px-6 flex items-center justify-center gap-x-3 font-semibold rounded-md hover:bg-[hsl(205,100%,33%)] active:bg-[hsl(205,100%,23%)] sm:w-fit"
+            aria-label="Show less blog posts"
+          >
+            Less blogs
+          </button>
         )}
+        {/* )} */}
       </div>
     </section>
   );

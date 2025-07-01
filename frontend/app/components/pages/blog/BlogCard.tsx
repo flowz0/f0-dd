@@ -5,15 +5,13 @@ import Link from "next/link";
 import { BlogProps } from "@/types/blog";
 import formatDate from "@/lib/formatDate";
 import { FaLongArrowAltRight } from "react-icons/fa";
-import slugify from "@/lib/slugify";
 
 interface BlogCardProps {
   blog: BlogProps;
 }
 
 export default function BlogCard({ blog }: BlogCardProps) {
-  const slug = slugify(blog.title);
-  const url = `/blog/${slug}-${blog._id}`
+  const url = `/blog/${blog._id}`
 
   return (
     <article

@@ -4,12 +4,16 @@ import { LoginData } from "@/types/login";
 import Link from "next/link";
 import { useState } from "react";
 import FormInput from "./FormInput";
+import { useRouter } from "next/navigation";
+import axios, { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState<LoginData>({
     username: "",
     password: "",
   });
+  const router = useRouter();
 
   const [errors, setErrors] = useState<Partial<LoginData>>({});
 
@@ -55,12 +59,29 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      console.log("Login submitted:", formData);
-      alert("Login successful!");
+    if (!validateForm()) return;
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5001/api/auth/login",
+        {
+          username: formData.username,
+          password: formData.password,
+        },
+        { withCredentials: true }
+      );
+
+      if (res.status === 200) {
+        toast.success("Logged in successfully!");
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<{error: string}>;
+      const errorMsg = axiosError?.response?.data?.error || "Something went wrong.";
+      toast.error(errorMsg);
     }
   };
 
@@ -70,6 +91,7 @@ export default function LoginForm() {
         name="username"
         label="Username"
         placeholder="Username"
+        className="bg-[#ffffff]"
         value={formData.username}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -80,6 +102,7 @@ export default function LoginForm() {
         name="password"
         label="Password"
         placeholder="••••••"
+        className="bg-[#ffffff]"
         type="password"
         value={formData.password}
         onChange={handleChange}
@@ -95,7 +118,7 @@ export default function LoginForm() {
       </button>
       <p className="mt-2 text-center">
         Don&apos;t have an account? {" "}
-        <br className="sm:hidden" /> 
+        <br className="sm:hidden" />
         <Link href="/register" className="text-[#0080DB] hover:underline hover:text-[hsl(205,100%,33%)] active:text-[hsl(205,100%,23%)]">Sign up</Link>
       </p>
     </form>

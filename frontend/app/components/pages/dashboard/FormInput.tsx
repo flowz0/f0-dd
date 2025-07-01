@@ -4,6 +4,7 @@ interface Props {
   type?: string;
   placeholder: string;
   value: string;
+  className?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   error?: string;
@@ -16,6 +17,7 @@ export default function FormInput({
   type = "text",
   placeholder,
   value,
+  className,
   onChange,
   onBlur,
   error,
@@ -36,7 +38,7 @@ export default function FormInput({
         onChange={onChange}
         onBlur={onBlur}
         required={required}
-        className={`bg-[#E6E6E6] text-[#333333] mt-2 py-3 px-5 rounded-lg outline-none placeholder:text-[hsl(0,0%,60%)] ${
+        className={`${className} bg-[#E6E6E6] text-[#333333] mt-2 py-3 px-5 rounded-lg outline-none placeholder:text-[hsl(0,0%,60%)] ${
           error ? "ring-2 ring-offset-2 ring-red-500" : "focus:ring-2 focus:ring-offset-2 focus:ring-[#0080DB]"
         }`}
         aria-invalid={!!error}
