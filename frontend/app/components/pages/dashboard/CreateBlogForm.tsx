@@ -160,7 +160,6 @@ export default function CreateBlogForm() {
         img: imageUrl,
         author: `${user.firstName} ${user.lastName}`,
       };
-      console.log("Payload being sent:", payload);
 
       const res = await axios.post("http://localhost:5001/api/blogs", payload, { withCredentials: true });
 
