@@ -4,13 +4,11 @@ import Header from "@/app/components/Header";
 import DeleteBlogBtn from "@/app/components/pages/dashboard/DeleteBlogBtn";
 import EditBlogBtn from "@/app/components/pages/dashboard/EditBlogBtn";
 import formatDate from "@/lib/formatDate";
-import slugify from "@/lib/slugify";
 import { BlogProps } from "@/types/blog";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaFileCirclePlus } from "react-icons/fa6";
-import api from "@/lib/api";
 import axios from "axios";
 
 export default function DashboardPage() {
@@ -19,36 +17,38 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const fetchData = async () => {
+    try {
+      await axios.get("http://localhost:5001/api/auth/check", {
+        withCredentials: true,
+      });
+
+      const blogsRes = await axios.get("http://localhost:5001/api/blogs", {
+        withCredentials: true,
+      });
+
+      const sorted = blogsRes.data
+        .filter((b: BlogProps) => !!b.createdAt)
+        .sort(
+          (a: BlogProps, b: BlogProps) =>
+            new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+        );
+
+      setBlogs(sorted);
+      setAuthorized(true);
+    } catch (error) {
+      console.error("Unauthorized or error fetching blogs", error);
+      router.push("/login");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await axios.get("http://localhost:5001/api/auth/check", {
-          withCredentials: true,
-        });
-
-        const blogsRes = await axios.get("http://localhost:5001/api/blogs", {
-          withCredentials: true,
-        });
-
-        const sorted = blogsRes.data
-          .filter((b: BlogProps) => !!b.createdAt)
-          .sort(
-            (a: BlogProps, b: BlogProps) =>
-              new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
-          );
-
-        setBlogs(sorted);
-        setAuthorized(true);
-      } catch (error) {
-        console.error("Unauthorized or error fetching blogs", error);
-        router.push("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, [router]);
+  });
+
+  const refetchBlogs = fetchData;
 
   if (loading) return <div className="p-8 text-center">Loading dashboard...</div>;
   if (!authorized) return null;
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="py-4 pr-2 flex items-center gap-2 max-w-[8rem] lg:max-w-[16rem] lg:pr-4">
                         <EditBlogBtn editHref={id} ariaLabel={blog.title} />
-                        <DeleteBlogBtn deleteHref={id} ariaLabel={blog.title} />
+                        <DeleteBlogBtn deleteHref={id} ariaLabel={blog.title} refetchBlogs={refetchBlogs} />
                       </td>
                     </tr>
                   );
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                     </h2>
                     <div className="mt-2 flex items-center gap-2">
                       <EditBlogBtn editHref={id} ariaLabel={blog.title} />
-                      <DeleteBlogBtn deleteHref={id} ariaLabel={blog.title} />
+                      <DeleteBlogBtn deleteHref={id} ariaLabel={blog.title} refetchBlogs={refetchBlogs} />
                     </div>
                   </div>
                   <p className="mt-1 text-sm">{formatDate(blog.createdAt!)}</p>
