@@ -25,6 +25,7 @@ export default function BlogCard({ blog }: BlogCardProps) {
         width={1080}
         className="w-full h-64 object-cover rounded-lg shadow shadow-[hsl(0,0%,80%)]"
         loading="lazy"
+        priority={false}
       />
       <div className="mt-2 flex justify-between">
         <p className="text-sm">{blog.author}</p>
