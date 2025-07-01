@@ -33,6 +33,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             width={1080}
             className="mt-12 h-auto w-full object-cover rounded-lg md:mt-16"
             draggable={false}
+            priority={true}
           />
         </header>
         <section className="mt-8 max-w-2xl mx-auto md:mt-12">
