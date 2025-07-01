@@ -37,7 +37,7 @@ export default function Navbar() {
               alt="Netflows logo"
               className="h-12 w-auto"
               draggable="false"
-              priority={true}
+              priority={false}
             />
           </Link>
 
